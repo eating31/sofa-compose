@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  frontend:
+    image: emmmmmma1/sofa-frontend:latest
+    ports:
+      - "4949:4949"
+    depends_on:
+      - backend
+    restart: always
+
+  postgres_db:
+    image: "postgres"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: meme
+      POSTGRES_PASSWORD: 1234
+    restart: always
+
+  backend:
+    image: emmmmmma1/sofa-backend:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres_db
+    restart: always
+    environment:
+      DB_HOST: postgres_db
+      DB_NAME: postgres # 可選：後端服務可能需要知道資料庫名稱
+      DB_USER: meme
+      DB_PASSWORD: 1234
+
+  pgadmin:
+    image: dpage/pgadmin4:7.5
+    user: root
+    container_name: pgadmin4_container
+    restart: always
+    ports:
+      - "4848:4848"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+      PGADMIN_LISTEN_PORT: 4848
+      PGADMIN_CONFIG_WTF_CSRF_CHECK_DEFAULT: "False"
+    depends_on:
+      - postgres_db
+
+networks:
+  frontend:
+  backend:
